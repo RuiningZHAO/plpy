@@ -14,11 +14,11 @@ from astropy.stats import mad_std, sigma_clip
 # AstroPy
 from astropy.table import Table
 
-from drspy import CCDDataList
-from drspy.longslit import (response, illumination, concatenate, fitcoords, resample, 
+from drpsy import CCDDataList
+from drpsy.longslit import (response, illumination, concatenate, fitcoords, resample, 
                             trace, background, extract, dispcor)
-from drspy.plotting import plotSpectrum1D, plot2d
-from drspy.utils import imstatistics
+from drpsy.plotting import plotSpectrum1D, plot2d
+from drpsy.utils import imstatistics
 
 
 def loadList(listname, listpath=''):
