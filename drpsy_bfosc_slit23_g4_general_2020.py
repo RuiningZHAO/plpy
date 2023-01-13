@@ -3,23 +3,25 @@
 """
 
 import sys
-sys.path.append('/data3/zrn/workspace/github')
+sys.path.append('/data3/zrn/workspace/github/drpsy/src')
 
 import os
 from glob import glob
 
 # NumPy
 import numpy as np
-from astropy.stats import mad_std
 # AstroPy
+from astropy.stats import mad_std
 from astropy.table import Table
-
-from drpsy import CCDDataList, concatenate, transform
-from drpsy.photometry.utils import getFWHM
-from drpsy.longslit import (response, illumination, fitcoords, dispcor, trace, 
-                            background, extract)
+# drpsy
+from drpsy.batch import CCDDataList
+from drpsy.image import concatenate
+from drpsy.twodspec.longslit import (response, illumination, fitcoords, transform, 
+                                     trace, background, extract)
+from drpsy.twodspec.utils import invertCoordinateMap
+from drpsy.onedspec import dispcor
 from drpsy.plotting import plotSpectrum1D, plot2d
-from drpsy.utils import imstatistics, invertCoordinateMap
+from drpsy.utils import imstatistics
 
 
 def loadList(listname, listpath=''):
@@ -102,8 +104,8 @@ def genFileTable(ccddatalist, listpath, verbose=False):
     return file_table
 
 
-def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, re_n_piece, 
-         il_bins, il_n_piece, rdnoise, gain, index, file_name, show, save, verbose):
+def pipeline(data_dir, save_dir, hdu, row_range, col_range, slit_along, re_n_piece, 
+             il_bins, il_n_piece, rdnoise, gain, index, file_name, show, save, verbose):
     """2.16-m/BFOSC pipeline (version 2020)"""
 
     # ==================================================================================
@@ -181,8 +183,8 @@ def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, re_n_piece,
     spec_list_bias_subtracted = spec_list_trimmed - master_bias
 
     # Check statistics
-    flat_list_trimmed.statistics(verbose=verbose) # [2]
-    flat_list_bias_subtracted.statistics(verbose=verbose) # [2]
+    flat_list_trimmed.statistics(verbose=verbose)
+    flat_list_bias_subtracted.statistics(verbose=verbose)
 
     # ==================================================================================
     # Flat Combination
@@ -340,8 +342,8 @@ def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, re_n_piece,
         prominence=1e-3, n_iter=3, sigma_lower=3, sigma_upper=3, grow=False, 
         use_mask=False, show=show, save=save, path=plot_path, height=0, threshold=0, 
         distance=5, width=5, wlen=15, rel_height=1, plateau_size=1)
-    
-    X, Y = invertCoordinateMap(U=U, V=None)
+
+    X, Y = invertCoordinateMap(slit_along, U)
 
     # ==================================================================================
     # Distortion correction
@@ -387,7 +389,7 @@ def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, re_n_piece,
     if verbose: print('WAVELENGTH CALIBRATION')
 
     lamp1d = extract(
-        ccd=transformed_lamp, slit_along=slit_along, trace=750, n_aper=1, 
+        ccd=transformed_lamp, slit_along=slit_along, trace1d=750, n_aper=1, 
         aper_width=10, show=show, save=save, path=plot_path)
     
     calibrated_lamp1d = dispcor(
@@ -397,8 +399,8 @@ def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, re_n_piece,
     
     # Plot calibrated arc spectrum
     plotSpectrum1D(
-        spectrum1d=calibrated_lamp1d, xlabel='wavelength [A]', ylabel='count', 
-        title='calibrated lamp', show=show, save=save, path=plot_path)
+        spectrum1d=calibrated_lamp1d, title='calibrated lamp', show=show, save=save, 
+        path=plot_path)
     
     # Write calibrated arc spectrum to file
     calibrated_lamp1d.write(
@@ -433,9 +435,9 @@ if __name__ == '__main__':
     rdnoise = 4.64
     gain = 1.41
     index = 665
-    file_name = 'bfosc_slit23_g4_2020.fits'
+    file_name = 'bfosc_slit23_g4.fits'
 
-    main(
+    pipeline(
         data_dir=data_dir, save_dir=save_dir, hdu=hdu, row_range=row_range, 
         col_range=col_range, slit_along=slit_along, 
         re_n_piece=response_dict['n_piece'], il_bins=illumination_dict['bins'], 
