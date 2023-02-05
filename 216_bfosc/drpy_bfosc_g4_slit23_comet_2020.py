@@ -14,12 +14,12 @@ from astropy.stats import mad_std
 # AstroPy
 from astropy.table import Table
 
-from drpsy import CCDDataList, concatenate, transform
-from drpsy.photometry.utils import getFWHM
-from drpsy.longslit import (response, illumination, align, fitcoords, dispcor, trace, 
+from drpy import CCDDataList, concatenate, transform
+from drpy.photometry.utils import getFWHM
+from drpy.longslit import (response, illumination, align, fitcoords, dispcor, trace, 
                             background, extract)
-from drpsy.plotting import plotSpectrum1D, plot2d
-from drpsy.utils import imstatistics, invertCoordinateMap
+from drpy.plotting import plotSpectrum1D, plot2d
+from drpy.utils import imstatistics, invertCoordinateMap
 
 
 def loadList(listname, listpath=''):

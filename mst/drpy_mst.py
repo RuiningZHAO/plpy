@@ -15,10 +15,10 @@ from astropy.stats import mad_std
 from astropy.nddata import CCDData
 # ccdproc
 from ccdproc import ImageFileCollection
-# drpsy
-from drpsy.batch import CCDDataList
-from drpsy.plotting import plot2d
-from drpsy.utils import imstatistics
+# drpy
+from drpy.batch import CCDDataList
+from drpy.plotting import plot2d
+from drpy.utils import imstatistics
     
 
 def makeDirectory(parent, child):

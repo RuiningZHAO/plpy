@@ -14,11 +14,12 @@ from astropy.stats import mad_std, sigma_clip
 # AstroPy
 from astropy.table import Table
 
-from drpsy import CCDDataList
-from drpsy.longslit import (response, illumination, concatenate, fitcoords, resample, 
+from drpy import CCDDataList
+from drpy.longslit import (response, illumination, concatenate, fitcoords, resample, 
                             trace, background, extract, dispcor)
-from drpsy.plotting import plotSpectrum1D, plot2d
-from drpsy.utils import imstatistics
+from drpy.plotting import plotSpectrum1D, plot2d
+from drpy.utils import imstatistics
+
 
 
 def loadList(listname, listpath=''):
@@ -42,7 +43,6 @@ def loadList(listname, listpath=''):
     
     return filelist
 
-
 def loadLists(listnames, listpath=''):
     """Load file lists.
 
@@ -65,7 +65,6 @@ def loadLists(listnames, listpath=''):
     
     return lists
 
-
 def genFileTable(ccddatalist):
     """
     """
@@ -80,7 +79,6 @@ def genFileTable(ccddatalist):
     file_table.pprint_all() # [2]
     
     return file_table
-
 
 def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, rdnoise, gain):
     """
@@ -147,7 +145,7 @@ def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, rdnoise, gai
     # ==================================================================================
     # Bias subtraction
     # ==================================================================================
-    # !!! Uncertainties assigned here (equal to that of ``master_bias``) are useless !!!
+    # !!! Uncertainties assigned here (equal to that of ``master_bias``) is useless !!!
     flat_list_bias_subtracted = flat_list_trimmed - master_bias
     lamp_list_bias_subtracted = lamp_list_trimmed - master_bias
     spec_list_bias_subtracted = spec_list_trimmed - master_bias
@@ -182,8 +180,8 @@ def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, rdnoise, gai
     # Response calibration
     # [sometimes ``n_piece`` needs to be tuned.]
     reflat = response(
-        ccd=combined_flat, slit_along=slit_along, n_piece=19, n_iter=1, sigma_lower=5, 
-        sigma_upper=5, grow=20, use_mask=True, show=False, save=True, path=plot_path)
+        ccd=combined_flat, slit_along=slit_along, n_piece=19, sigma_lower=3, 
+        sigma_upper=3, grow=10, use_mask=True, show=False, save=True, path=plot_path)
 
     # Check statistics
     imstatistics(reflat, verbose=True) # [2]
@@ -191,7 +189,7 @@ def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, rdnoise, gai
     # Plot response calibrated flat
     plot2d(reflat.data, title='reflat', show=False, save=True, path=plot_path)
 
-    # Custom mask
+#     # Custom mask
 #     reflat.mask[520:620, 1200:1750] = True
     
     # Plot response mask
@@ -203,23 +201,31 @@ def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, rdnoise, gai
     reflat.write(os.path.join(fits_path, 'reflat.fits'), overwrite=True) # [3]
     
     # Illumination modeling
-    ilflat = illumination(
-        ccd=reflat, slit_along=slit_along, method='iraf',
-        bins=[0, 250, 500, 750, 1000, 1100, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 
-              1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900, 1925], n_piece=[3, 3, 3, 
-        3, 12, 15, 15, 15, 16, 16, 14, 14, 12, 17, 19, 23, 25, 45, 29, 30, 29], 
-        n_iter=5, sigma_lower=1.5, sigma_upper=3, grow=3, use_mask=True, show=False, 
-        save=True, path=plot_path)
+#     ilflat = illumination(
+#         ccd=reflat, slit_along=slit_along, method='iraf',
+#         bins=[0, 250, 500, 750, 1000, 1100, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 
+#               1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900, 1950], n_piece=[3, 3, 3, 
+#         3, 12, 15, 15, 15, 15, 21, 15, 15, 12, 17, 21, 23, 25, 45, 29, 30, 29], 
+#         n_iter=5, sigma_lower=1.5, sigma_upper=3, grow=3, use_mask=True, show=False, 
+#         save=True, path=plot_path)
+
+#     ilflat = illumination(
+#         ccd=reflat, slit_along=slit_along, method='iraf',
+#         bins=[0, 250, 500, 750, 1000, 1100, 1200, 1250, 1300, 1350, 1400, 1450, 1500, 
+#               1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900, 1950], n_piece=[4, 4, 4, 
+#         4, 15, 15, 15, 15, 15, 21, 15, 12, 10, 12, 21, 23, 23, 16, 20, 16, 25], 
+#         n_iter=3, sigma_lower=1.5, sigma_upper=3, grow=3, use_mask=True, show=False, 
+#         save=True, path=plot_path)
 
 #     ilflat = illumination(
 #         ccd=reflat, slit_along=slit_along, method='CubicSpline2D', n_piece=(21, 5), 
 #         n_iter=3, sigma_lower=1.5, sigma_upper=3, grow=5, use_mask=True, show=False, 
 #         save=True, path=plot_path)
     
-#     ilflat = illumination(
-#         ccd=reflat, slit_along=slit_along, method='Gaussian2D', sigma=(20, 20), bins=10, 
-#         n_iter=10, sigma_lower=1.5, sigma_upper=3, grow=5, use_mask=True, show=False, 
-#         save=True, path=plot_path)
+    ilflat = illumination(
+        ccd=reflat, slit_along=slit_along, method='Gaussian2D', sigma=(20, 20), bins=10, 
+        n_iter=10, sigma_lower=1.5, sigma_upper=3, grow=5, use_mask=True, show=False, 
+        save=True, path=plot_path)
 
     # Plot illumination
     plot2d(ilflat.data, title='illumination', show=False, save=True, path=plot_path)
@@ -356,7 +362,7 @@ def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, rdnoise, gai
         use_uncertainty=True, show=False, save=True, path=plot_path)
     
     calibrated_lamp1d = dispcor(
-        spectrum1d=lamp1d, reverse=True, file_name='bfosc_slit23_g4_2021.fits', n_ext=10, 
+        spectrum1d=lamp1d, reverse=True, file_name='bfosc_slit23_g4.fits', n_ext=10, 
         n_sub=5, n_piece=3, refit=True, n_iter=5, sigma_lower=3, sigma_upper=3, 
         grow=False, show=False, save=True, path=plot_path)
     
@@ -371,12 +377,14 @@ def main(data_dir, save_dir, hdu, row_range, col_range, slit_along, rdnoise, gai
 if __name__ == '__main__':
 
     # Path
-    data_dir = '/data3/zrn/workspace/data_reduction/20221011_bfosc'
-    save_dir = '/data3/zrn/workspace/data_reduction/20221011_bfosc'
+    data_dir = '/data3/zrn/workspace/data_reduction/demo_SN2021klg/data'
+    save_dir = '/data3/zrn/workspace/data_reduction/demo_SN2021klg'
+#     data_dir = '/data3/zrn/workspace/data_reduction/demo_standard/data'
+#     save_dir = '/data3/zrn/workspace/data_reduction/demo_standard'
     
     # Hyper parameters
     hdu = 0
-    col_range = (25, 1950)
+    col_range = (0, 1950)
     row_range = (329, 1830)
     slit_along = 'col'
     rdnoise = 4.64

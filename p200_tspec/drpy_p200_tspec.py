@@ -8,9 +8,9 @@ from astropy.stats import mad_std
 from astropy.table import Table
 # ccdproc
 from ccdproc import subtract_bias
-# drpsy
-from drpsy.batch import CCDDataList
-from drpsy.plotting import plot2d
+# drpy
+from drpy.batch import CCDDataList
+from drpy.plotting import plot2d
 
     
 def genFileTable(ccddatalist, keywords, verbose):

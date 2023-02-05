@@ -1,2 +1,2 @@
-# drpsy-pipeline
-Pipelines developed based on drpsy
+# drpy-pipeline
+Pipelines developed based on drpy
