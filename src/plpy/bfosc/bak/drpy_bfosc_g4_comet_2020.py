@@ -17,7 +17,7 @@ from astropy.table import Table
 from drpy import CCDDataList, concatenate, transform
 from drpy.photometry.utils import getFWHM
 from drpy.longslit import (response, illumination, align, fitcoords, dispcor, trace, 
-                            background, extract)
+                           background, extract)
 from drpy.plotting import plotSpectrum1D, plot2d
 from drpy.utils import imstatistics, invertCoordinateMap
 

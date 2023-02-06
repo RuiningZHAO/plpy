@@ -19,38 +19,10 @@ from ccdproc import ImageFileCollection
 from drpy.batch import CCDDataList
 from drpy.plotting import plot2d
 from drpy.utils import imstatistics
-    
 
-def makeDirectory(parent, child):
-    """
-    """
-    
-    path = os.path.join(parent, child)
-    
-    os.makedirs(path, exist_ok=True)
-    
-    return path
+from .utils import makeDirectory, modifyHeader
 
 
-def modifyHeader(file_name):
-    """
-    """
-    
-    with fits.open(file_name, 'update') as f:
-        
-        for hdu in f:
-            
-            if ('RADECSYS' in hdu.header) & ('RADESYSa' not in hdu.header):
-                hdu.header['RADESYSa'] = (
-                    hdu.header['RADECSYS'], hdu.header.comments['RADECSYS'])
-                del hdu.header['RADECSYS']
-            
-            if ('DATE-OBS' in hdu.header) & ('MJD-OBS' not in hdu.header):
-                hdu.header['MJD-OBS'] = (
-                    Time(hdu.header['DATE-OBS'], format='fits').mjd, 
-                    'Set from DATE-OBS')
-        
-    
 def pipeline(save_dir, data_dir, keywords, telescope, target, gain, rdnoise, row_range, 
              col_range, steps, mem_limit, verbose, show, save):
     """
