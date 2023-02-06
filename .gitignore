@@ -1,0 +1,4 @@
+# .gitignore
+src/plpy/bak
+src/plpy/bfosc/bak
+__pycache__
