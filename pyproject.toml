@@ -17,6 +17,9 @@ classifiers = [
 ]
 dynamic = ["version", "dependencies"]
 
+[project.scripts]
+bfosc_g4_old = "plpy.bfosc.g4_old:main"
+
 [project.urls]
 "Homepage" = "https://github.com/RuiningZHAO/plpy"
 "Tracker" = "https://github.com/RuiningZHAO/plpy/issues"

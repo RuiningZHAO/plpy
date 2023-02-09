@@ -1,0 +1,2 @@
+[console_scripts]
+bfosc_g4_old = plpy.bfosc.g4_old:main
