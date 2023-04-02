@@ -1,11 +1,13 @@
 LICENSE
 README.md
 pyproject.toml
+requirements.txt
 setup.py
 src/astro_plpy.egg-info/PKG-INFO
 src/astro_plpy.egg-info/SOURCES.txt
 src/astro_plpy.egg-info/dependency_links.txt
 src/astro_plpy.egg-info/entry_points.txt
+src/astro_plpy.egg-info/requires.txt
 src/astro_plpy.egg-info/top_level.txt
 src/plpy/__init__.py
 src/plpy/mst.py
@@ -14,7 +16,10 @@ src/plpy/utils.py
 src/plpy/bak/operations.py
 src/plpy/bak/utils.py
 src/plpy/bfosc/__init__.py
+src/plpy/bfosc/g4.py
 src/plpy/bfosc/g4_old.py
+src/plpy/bfosc/phot.py
+src/plpy/bfosc/phot_old.py
 src/plpy/bfosc/utils.py
 src/plpy/bfosc/bak/drpy_bfosc_g4_comet_2020.py
 src/plpy/bfosc/bak/drpy_bfosc_g4_slit23_general.py
@@ -23,4 +28,7 @@ src/plpy/bfosc/bak/drpy_bfosc_g4_slit23_general_2022.py
 src/plpy/bfosc/bak/drpy_bfosc_g4_slit23_standard.py
 src/plpy/bfosc/lib/2020a/bfosc_g4_slit18_2020a.fits
 src/plpy/bfosc/lib/2020a/bfosc_g4_slit18_2020a.reg
+src/plpy/bfosc/lib/2020a/bfosc_g4_slit23_2020a.fits
 src/plpy/bfosc/lib/2020a/bfosc_g4_slit23_2020a.reg
+src/plpy/bfosc/lib/2022b/bfosc_g4_slit23_2022b.fits
+src/plpy/bfosc/lib/2022b/bfosc_g4_slit23_2022b.reg

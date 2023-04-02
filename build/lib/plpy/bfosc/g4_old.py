@@ -1,5 +1,5 @@
 """
-2.16-m/BFOSC pipeline
+BFOSC/G4 pipeline
 """
 
 import os, argparse
@@ -20,7 +20,7 @@ from drpy.plotting import plot2d, plotSpectrum1D
 from drpy.twodspec.longslit import (response, illumination, fitcoords, transform, 
                                     extract)
 from drpy.twodspec.utils import invertCoordinateMap
-from drpy.onedspec import dispcor
+from drpy.onedspec import dispcor, saveSpectrum1D
 
 from ..utils import makeDirectory, modifyHeader
 from .utils import LIBRARY_PATH, login, loadLists, getMask
@@ -29,11 +29,11 @@ from .utils import LIBRARY_PATH, login, loadLists, getMask
 def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range, 
              slit_along, n_piece, sigma, index, rdnoise, gain, custom_mask, reference, 
              mem_limit, show, save, verbose, mode): 
-    """2.16-m/BFOSC pipeline"""
+    """BFOSC/G4 pipeline."""
     
     # Login message
     if verbose:
-        login('G4')
+        login('Grism 4')
     
     # Make directories
     if verbose:
@@ -243,8 +243,8 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
             path=fig_path)
 
         # Write calibrated lamp spectrum to file
-        calibrated_lamp1d.write(
-            os.path.join(cal_path, 'lamp1d.fits'), overwrite=True)
+        saveSpectrum1D(
+            os.path.join(cal_path, 'lamp1d.fits'), calibrated_lamp1d, overwrite=True)
         
     # Flat combination
     if ('flat.combine' in steps) or ('flat' in steps):
@@ -508,7 +508,7 @@ def main():
     col_range = (0, 1900)
     slit_along = 'col'
     index = 665
-    n_piece = 19
+    n_piece = 23
     sigma = (20, 30)
     rdnoise = 4.64
     gain = 1.41
@@ -519,7 +519,8 @@ def main():
     
     # Note that slit18 can be used to calibrate slit23
     if not reference:
-        reference = os.path.join(semester_path, f'bfosc_g4_slit18_{semester}.fits')
+        reference = os.path.join(
+            semester_path, f'bfosc_g4_slit{slit_width}_{semester}.fits')
     else:
         reference = os.path.abspath(reference)
     if not os.path.exists(reference):

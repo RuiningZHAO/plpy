@@ -13,7 +13,7 @@ def login(grism):
     """Print login message."""
     
     print('===========================================================================')
-    print(f'                Data Reduction Pipeline for 2.16-m/BFOSC {grism}')
+    print(f'              Data Reduction Pipeline for 2.16-m/BFOSC {grism}')
     print(f'                         (based on drpy v{version_drpy})')
     print('---------------------------------------------------------------------------')
     

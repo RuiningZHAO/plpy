@@ -19,6 +19,9 @@ dynamic = ["version", "dependencies"]
 
 [project.scripts]
 bfosc_g4_old = "plpy.bfosc.g4_old:main"
+bfosc_phot_old = "plpy.bfosc.phot_old:main"
+bfosc_g4 = "plpy.bfosc.g4:main"
+bfosc_phot = "plpy.bfosc.phot:main"
 
 [project.urls]
 "Homepage" = "https://github.com/RuiningZHAO/plpy"
@@ -33,3 +36,4 @@ plpy = ["bfosc/lib/**/*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "plpy.__version__"}
+dependencies = {file = "requirements.txt"}
