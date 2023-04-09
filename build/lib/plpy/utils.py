@@ -45,3 +45,33 @@ def modifyHeader(file_name, verbose=False):
                     Time(hdu.header['DATE-OBS'], format='fits').mjd, 
                     'Set from DATE-OBS'
                 )
+            
+            # Set `GAIN` to `float`
+            if 'GAIN' in hdu.header:
+                
+                if isinstance(hdu.header['GAIN'], str):
+                    
+                    try:
+                        hdu.header['GAIN'] = (
+                            float(hdu.header['GAIN']), hdu.header.comments['GAIN']
+                        )
+                        if verbose:
+                            print(f'{file_name}: set `GAIN` to `float`.')
+                        
+                    except:
+                        pass
+            
+            # Set `RDNOISE` to `float`
+            if 'RDNOISE' in hdu.header:
+                
+                if isinstance(hdu.header['RDNOISE'], str):
+                    
+                    try:
+                        hdu.header['RDNOISE'] = (
+                            float(hdu.header['RDNOISE']), hdu.header.comments['RDNOISE']
+                        )
+                        if verbose:
+                            print(f'{file_name}: set `RDNOISE` to `float`.')
+                        
+                    except:
+                        pass

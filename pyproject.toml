@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "astro-plpy"
-description = "Data reduction pipelines developed based on drpy."
+description = "Data reduction pipelines developed based on astro-drpy."
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
   {name = "Ruining ZHAO", email = "ruiningzhao@mail.bnu.edu.cn"}, 

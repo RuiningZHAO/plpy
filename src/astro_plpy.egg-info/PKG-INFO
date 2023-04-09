@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: astro-plpy
-Version: 0.0.1.0
-Summary: Data reduction pipelines developed based on drpy.
+Version: 0.0.1.3
+Summary: Data reduction pipelines developed based on astro-drpy.
 Author-email: Ruining ZHAO <ruiningzhao@mail.bnu.edu.cn>
 Project-URL: Homepage, https://github.com/RuiningZHAO/plpy
 Project-URL: Tracker, https://github.com/RuiningZHAO/plpy/issues
