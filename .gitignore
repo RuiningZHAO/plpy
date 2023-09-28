@@ -3,8 +3,7 @@
 dist
 build
 
-src/plpy/bak
-src/plpy/bfosc/bak
+bak
 
 __pycache__
 .ipynb_checkpoints
