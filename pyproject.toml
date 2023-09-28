@@ -18,10 +18,12 @@ classifiers = [
 dynamic = ["version", "dependencies"]
 
 [project.scripts]
-bfosc_g4_old = "plpy.bfosc.g4_old:main"
-bfosc_phot_old = "plpy.bfosc.phot_old:main"
-bfosc_g4 = "plpy.bfosc.g4:main"
-bfosc_phot = "plpy.bfosc.phot:main"
+plpy_bfosc_g4_old = "plpy.bfosc.g4_old:main"
+plpy_bfosc_phot_old = "plpy.bfosc.phot_old:main"
+plpy_bfosc_config = "plpy.bfosc.scripts:config"
+plpy_bfosc_spec = "plpy.bfosc.scripts:spec"
+plpy_bfosc_phot = "plpy.bfosc.scripts:phot"
+plpy_fire = "plpy.fire.core:main"
 
 [project.urls]
 "Homepage" = "https://github.com/RuiningZHAO/plpy"
@@ -32,7 +34,7 @@ where = ["src"]  # list of folders that contain the packages (["."] by default)
 include = ["*"]  # package names should match these glob patterns (["*"] by default)
 
 [tool.setuptools.package-data]
-plpy = ["bfosc/lib/**/*"]
+plpy = ["fire/lib/*", "bfosc/lib/**/*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "plpy.__version__"}

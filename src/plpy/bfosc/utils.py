@@ -4,16 +4,14 @@ import pyregion
 # drpy
 from drpy import __version__ as version_drpy
 
-__all__ = ['MODULE_PATH', 'loadList', 'loadLists']
-
-LIBRARY_PATH = os.path.join(os.path.split(__file__)[0], 'lib')
+__all__ = ['loadList', 'loadLists', 'getMask']
 
 
 def login(grism):
     """Print login message."""
     
     print('===========================================================================')
-    print(f'              Data Reduction Pipeline for 2.16-m/BFOSC {grism}')
+    print(f'                Data Reduction Pipeline for 2.16-m/BFOSC {grism}')
     print(f'                         (based on drpy v{version_drpy})')
     print('---------------------------------------------------------------------------')
     
@@ -37,10 +35,10 @@ def loadLists(list_names, list_path=''):
     return list_dict
 
 
-def getMask(region_name, shape):
+def getMask(path_to_region, shape):
     """Generate custom mask from ds9 region."""
     
-    r = pyregion.open(region_name)
+    r = pyregion.open(path_to_region)
     
     mask = r.get_mask(shape=shape)
     

@@ -4,6 +4,8 @@ import os
 from astropy.io import fits
 from astropy.time import Time
 
+__all__ = ['makeDirectory', 'modifyHeader']
+
 
 def makeDirectory(parent, child, verbose=False):
     """Make directory."""
@@ -18,12 +20,22 @@ def makeDirectory(parent, child, verbose=False):
     return path
 
 
-def modifyHeader(file_name, verbose=False):
+def modifyHeader(file_name, verbose=False, **kwargs):
     """Modify fits header."""
     
-    with fits.open(file_name, 'update') as f:
+    with fits.open(file_name, mode='update', **kwargs) as f:
         
         for hdu in f:
+            
+            # `FILE` to `FILENAME`
+            if ('FILE' in hdu.header) & ('FILENAME' not in hdu.header):
+                
+                if verbose:
+                    print(f'{file_name}: rename `FILE` to `FILENAME`.')
+                
+                hdu.header.set(
+                    'FILENAME', hdu.header['FILE'], hdu.header.comments['FILE'])
+                del hdu.header['FILE']
             
             # `RADECSYS` -> `RADESYSa`
             if ('RADECSYS' in hdu.header) & ('RADESYSa' not in hdu.header):
@@ -31,8 +43,8 @@ def modifyHeader(file_name, verbose=False):
                 if verbose:
                     print(f'{file_name}: rename `RADECSYS` to `RADESYSa`.')
                 
-                hdu.header['RADESYSa'] = (
-                    hdu.header['RADECSYS'], hdu.header.comments['RADECSYS'])
+                hdu.header.set(
+                    'RADESYSa', hdu.header['RADECSYS'], hdu.header.comments['RADECSYS'])
                 del hdu.header['RADECSYS']
             
             # Set `MJD-OBS` from `DATE-OBS`
@@ -41,8 +53,8 @@ def modifyHeader(file_name, verbose=False):
                 if verbose:
                     print(f'{file_name}: set `MJD-OBS` from `DATE-OBS`.')
                     
-                hdu.header['MJD-OBS'] = (
-                    Time(hdu.header['DATE-OBS'], format='fits').mjd, 
+                hdu.header.set(
+                    'MJD-OBS', Time(hdu.header['DATE-OBS'], format='fits').mjd, 
                     'Set from DATE-OBS'
                 )
             
@@ -52,9 +64,10 @@ def modifyHeader(file_name, verbose=False):
                 if isinstance(hdu.header['GAIN'], str):
                     
                     try:
-                        hdu.header['GAIN'] = (
-                            float(hdu.header['GAIN']), hdu.header.comments['GAIN']
-                        )
+                        hdu.header.set(
+                            'GAIN', float(hdu.header['GAIN']), 
+                            hdu.header.comments['GAIN'])
+                        
                         if verbose:
                             print(f'{file_name}: set `GAIN` to `float`.')
                         
@@ -67,9 +80,10 @@ def modifyHeader(file_name, verbose=False):
                 if isinstance(hdu.header['RDNOISE'], str):
                     
                     try:
-                        hdu.header['RDNOISE'] = (
-                            float(hdu.header['RDNOISE']), hdu.header.comments['RDNOISE']
-                        )
+                        hdu.header.set(
+                            'RDNOISE', float(hdu.header['RDNOISE']), 
+                            hdu.header.comments['RDNOISE'])
+                        
                         if verbose:
                             print(f'{file_name}: set `RDNOISE` to `float`.')
                         

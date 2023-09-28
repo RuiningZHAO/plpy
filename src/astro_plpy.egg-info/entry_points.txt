@@ -1,5 +1,7 @@
 [console_scripts]
-bfosc_g4 = plpy.bfosc.g4:main
-bfosc_g4_old = plpy.bfosc.g4_old:main
-bfosc_phot = plpy.bfosc.phot:main
-bfosc_phot_old = plpy.bfosc.phot_old:main
+plpy_bfosc_config = plpy.bfosc.scripts:config
+plpy_bfosc_g4_old = plpy.bfosc.g4_old:main
+plpy_bfosc_phot = plpy.bfosc.scripts:phot
+plpy_bfosc_phot_old = plpy.bfosc.phot_old:main
+plpy_bfosc_spec = plpy.bfosc.scripts:spec
+plpy_fire = plpy.fire.core:main

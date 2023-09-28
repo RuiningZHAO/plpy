@@ -8,10 +8,12 @@ from copy import deepcopy
 # NumPy
 import numpy as np
 # AstroPy
+import astropy.units as u
 from astropy.stats import mad_std
 from astropy.nddata import CCDData
 # ccdproc
 from ccdproc import ImageFileCollection
+from ccdproc.utils.slices import slice_from_string
 # drpy
 from drpy.batch import CCDDataList
 from drpy.image import concatenate
@@ -26,8 +28,8 @@ from ..utils import makeDirectory, modifyHeader
 from .utils import LIBRARY_PATH, login, loadLists, getMask
 
 
-def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range, 
-             slit_along, n_piece, sigma, index, rdnoise, gain, custom_mask, reference, 
+def pipeline(save_dir, data_dir, hdu, keywords, steps, fits_section, slit_along, 
+             n_piece, sigma, index, rdnoise, gain, custom_mask, reference, 
              mem_limit, show, save, verbose, mode): 
     """BFOSC/G4 pipeline."""
     
@@ -60,8 +62,11 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
         for file_name in ifc.files_filtered(include_path=True):
             modifyHeader(file_name, verbose=verbose)
     
+    gain *= (u.photon / u.adu)
+    rdnoise *= u.photon
+    
     if 'trim' in steps:
-        custom_mask = custom_mask[row_range[0]:row_range[1], col_range[0]:col_range[1]]
+        custom_mask = custom_mask[slice_from_string(fits_section, fits_convention=True)]
         trim = True
     else:
         trim = False
@@ -84,14 +89,19 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
         if trim:
             if verbose:
                 print('  - Trimming...')
-            bias_list = bias_list.trim(row_range=row_range, col_range=col_range)
+            bias_list = bias_list.trim_image(fits_section=fits_section)
         
-        bias_list.statistics(verbose=verbose)
+        # Correct gain
+        if verbose:
+            print('  - Correcting gain...')
+        bias_list_gain_corrected = bias_list.gain_correct(gain=gain)
+        
+        bias_list_gain_corrected.statistics(verbose=verbose)
 
         # Combine bias
         if verbose:
             print('  - Combining...')
-        master_bias = bias_list.combine(
+        master_bias = bias_list_gain_corrected.combine(
             method='average', sigma_clip=True, sigma_clip_low_thresh=3, 
             sigma_clip_high_thresh=3, sigma_clip_func=np.ma.median, 
             sigma_clip_dev_func=mad_std, mem_limit=mem_limit, 
@@ -126,9 +136,14 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
         if trim:
             if verbose:
                 print('  - Trimming...')
-            lamp_list = lamp_list.trim(row_range=row_range, col_range=col_range)
+            lamp_list = lamp_list.trim_image(fits_section=fits_section)
         
-        lamp_list.statistics(verbose=verbose)
+        # Correct gain
+        if verbose:
+            print('  - Correcting gain...')
+        lamp_list_gain_corrected = lamp_list.gain_correct(gain=gain)
+        
+        lamp_list_gain_corrected.statistics(verbose=verbose)
         
         # Subtract bias
         #   Uncertainties created here (equal to that of ``master_bias``) are useless!!!
@@ -136,7 +151,7 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
             print('  - Subtracting bias...')
         if 'master_bias' not in locals():
             master_bias = CCDData.read(os.path.join(cal_path, 'master_bias.fits'))
-        lamp_list_bias_subtracted = lamp_list - master_bias
+        lamp_list_bias_subtracted = lamp_list_gain_corrected - master_bias
         
         lamp_list_bias_subtracted.statistics(verbose=verbose)
         
@@ -145,7 +160,7 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
             print('  - Creating deviation...')
         lamp_list_bias_subtracted_with_deviation = (
             lamp_list_bias_subtracted.create_deviation(
-                gain=gain, readnoise=rdnoise, disregard_nan=True)
+                gain=None, readnoise=rdnoise, disregard_nan=True)
         )
         
         # Concatenate
@@ -158,8 +173,8 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
                 lamp_list_bias_subtracted_with_deviation[::-1]
             )
         concatenated_lamp = concatenate(
-            lamp_list_bias_subtracted_with_deviation, row_range=(0, None), 
-            col_range=(0, index), scale=None)
+            lamp_list_bias_subtracted_with_deviation, fits_section=f'[:{index}, :]', 
+            scale=None)
         
         # Plot concatenated lamp
         plot2d(
@@ -188,8 +203,8 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
                 os.path.join(cal_path, 'concatenated_lamp.fits'))
         U, _ = fitcoords(
             ccd=concatenated_lamp, slit_along=slit_along, order=1, n_med=15, n_piece=3, 
-            prominence=1e-3, n_iter=3, sigma_lower=3, sigma_upper=3, grow=False, 
-            use_mask=False, show=show, save=save, path=fig_path, height=0, threshold=0, 
+            prominence=1e-3, maxiters=3, sigma_lower=3, sigma_upper=3, grow=False, 
+            use_mask=False, plot=save, path=fig_path, height=0, threshold=0, 
             distance=5, width=5, wlen=15, rel_height=1, plateau_size=1)
         
         # Invert coordinate map
@@ -226,17 +241,17 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
             transformed_lamp = CCDData.read(
                 os.path.join(cal_path, 'transformed_lamp.fits'))
         lamp1d = extract(
-            ccd=transformed_lamp, slit_along=slit_along, trace1d=750, n_aper=1, 
-            aper_width=10, show=show, save=save, path=fig_path)
+            ccd=transformed_lamp, slit_along=slit_along, method='sum', trace1d=750, 
+            n_aper=1, aper_width=10, show=show, save=save, path=fig_path)
 
         # Correct dispersion
         if verbose:
             print('  - Correcting dispersion axis...')
         calibrated_lamp1d = dispcor(
-            spectrum1d=lamp1d, reverse=True, reference=reference, n_piece=3, refit=True, 
-            n_iter=5, sigma_lower=3, sigma_upper=3, grow=False, use_mask=True, show=show, 
-            save=save, path=fig_path)
-
+            spectrum1d=lamp1d, reverse=True, reference=reference, n_sub=20, refit=True, 
+            degree=1, maxiters=5, sigma_lower=3, sigma_upper=3, grow=False, 
+            use_mask=True, show=show, save=save, path=fig_path)
+        
         # Plot calibrated lamp spectrum
         plotSpectrum1D(
             spectrum1d=calibrated_lamp1d, title='calibrated lamp', show=show, save=save, 
@@ -264,9 +279,14 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
         if trim:
             if verbose:
                 print('  - Trimming...')
-            flat_list = flat_list.trim(row_range=row_range, col_range=col_range)
+            flat_list = flat_list.trim_image(fits_section=fits_section)
         
-        flat_list.statistics(verbose=verbose)
+        # Correct gain
+        if verbose:
+            print('  - Correcting gain...')
+        flat_list_gain_corrected = flat_list.gain_correct(gain=gain)
+        
+        flat_list_gain_corrected.statistics(verbose=verbose)
 
         # Subtract bias
         #   Uncertainties created here (equal to that of ``master_bias``) are useless!!!
@@ -274,7 +294,7 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
             print('  - Subtracting bias...')
         if 'master_bias' not in locals():
             master_bias = CCDData.read(os.path.join(cal_path, 'master_bias.fits'))
-        flat_list_bias_subtracted = flat_list - master_bias
+        flat_list_bias_subtracted = flat_list_gain_corrected - master_bias
         
         flat_list_bias_subtracted.statistics(verbose=verbose)
 
@@ -312,20 +332,30 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
         # Response calibration
         if 'combined_flat' not in locals():
             combined_flat = CCDData.read(os.path.join(cal_path, 'combined_flat.fits'))
-        reflat = response(
-            ccd=combined_flat, slit_along=slit_along, n_piece=n_piece, n_iter=5, 
-            sigma_lower=3, sigma_upper=3, grow=10, use_mask=True, show=show, save=save, 
+        response2d = response(
+            ccd=combined_flat, slit_along=slit_along, n_piece=n_piece, maxiters=5, 
+            sigma_lower=3, sigma_upper=3, grow=10, use_mask=True, plot=save, 
             path=fig_path)
-
+        
+        # Plot modeled response
+        plot2d(response2d.data, title='reflat', show=show, save=save, path=fig_path)
+        
+        # Plot response mask
+        plot2d(
+            response2d.mask.astype(int), vmin=0, vmax=1, title='response mask', 
+            show=show, save=save, path=fig_path)
+        
+        # Write modeled response to file
+        response2d.write(os.path.join(cal_path, 'response2d.fits'), overwrite=True)
+        
+        # Normalize
+        reflat = combined_flat.divide(
+            response2d, handle_mask='first_found', handle_meta='first_found')
+        
         imstatistics(reflat, verbose=verbose)
         
         # Plot response calibrated flat
         plot2d(reflat.data, title='reflat', show=show, save=save, path=fig_path)
-        
-        # Plot response mask
-        plot2d(
-            reflat.mask.astype(int), vmin=0, vmax=1, title='response mask', show=show, 
-            save=save, path=fig_path)
         
         # Write response calibrated flat to file
         reflat.write(os.path.join(cal_path, 'reflat.fits'), overwrite=True)
@@ -342,37 +372,48 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
         if 'reflat' not in locals():
             reflat = CCDData.read(os.path.join(cal_path, 'reflat.fits'))
         reflat.mask |= custom_mask
-        ilflat = illumination(
+        illumination2d = illumination(
             ccd=reflat, slit_along=slit_along, method='Gaussian2D', sigma=sigma, 
-            bins=10, n_iter=5, sigma_lower=3, sigma_upper=3, grow=5, use_mask=True, 
-            show=show, save=save, path=fig_path)
+            bins=10, maxiters=5, sigma_lower=3, sigma_upper=3, grow=5, use_mask=True, 
+            plot=save, path=fig_path)
 
-        imstatistics(ilflat, verbose=verbose)
+        imstatistics(illumination2d, verbose=verbose)
 
-        # Plot illumination
-        plot2d(ilflat.data, title='illumination', show=show, save=save, path=fig_path)
+        # Plot modeled illumination
+        plot2d(
+            illumination2d.data, title='illumination', show=show, save=save, 
+            path=fig_path)
         
         # Plot illumination mask
         plot2d(
-            ilflat.mask.astype(int), vmin=0, vmax=1, title='illumination mask', 
+            illumination2d.mask.astype(int), vmin=0, vmax=1, title='illumination mask', 
             show=show, save=save, path=fig_path)
         
         # Write illumination to file
-        ilflat.write(os.path.join(cal_path, 'illumination.fits'), overwrite=True)
-
-    # Flat normalization
-    if ('flat.normalize' in steps) or ('flat' in steps):
-        if verbose:
-            print('\n[FLAT NORMALIZATION]')
-        # Normalization
-        normalized_flat = reflat.divide(ilflat, handle_meta='first_found')
+        illumination2d.write(
+            os.path.join(cal_path, 'illumination.fits'), overwrite=True)
+        
+        # Normalize
+        normalized_flat = reflat.divide(
+            illumination2d, handle_mask='first_found', handle_meta='first_found')
+        
+        imstatistics(normalized_flat, verbose=verbose)
+        
         # Plot normalized flat
         plot2d(
             normalized_flat.data, title='normalized flat', show=show, save=save, 
             path=fig_path)
+        
+        # Plot normalized flat mask
+        plot2d(
+            normalized_flat.mask.astype(int), vmin=0, vmax=1, aspect='auto', 
+            cbar=False, title='normalized flat mask', show=show, save=save, 
+            path=fig_path)
+        
         # Write normalized flat to file
         normalized_flat.write(
             os.path.join(cal_path, 'normalized_flat.fits'), overwrite=True)
+
         # [can be replaced by a pre-defined custom mask]
         normalized_flat.mask = None
 
@@ -395,9 +436,14 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
         if trim:
             if verbose:
                 print('  - Trimming...')
-            targ_list = targ_list.trim(row_range=row_range, col_range=col_range)
+            targ_list = targ_list.trim_image(fits_section=fits_section)
 
-        targ_list.statistics(verbose=verbose)
+        # Correct gain
+        if verbose:
+            print('  - Correcting gain...')
+        targ_list_gain_corrected = targ_list.gain_correct(gain=gain)
+        
+        targ_list_gain_corrected.statistics(verbose=verbose)
 
         # Subtract bias
         #   Uncertainties created here (equal to that of ``master_bias``) are useless!!!
@@ -405,7 +451,7 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
             print('  - Subtracting bias...')
         if 'master_bias' not in locals():
             master_bias = CCDData.read(os.path.join(cal_path, 'master_bias.fits'))
-        targ_list_bias_subtracted = targ_list - master_bias
+        targ_list_bias_subtracted = targ_list_gain_corrected - master_bias
         
         targ_list_bias_subtracted.statistics(verbose=verbose)
 
@@ -414,14 +460,15 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
             print('  - Creating deviation...')
         targ_list_bias_subtracted_with_deviation = (
             targ_list_bias_subtracted.create_deviation(
-                gain=gain, readnoise=rdnoise, disregard_nan=True)
+                gain=None, readnoise=rdnoise, disregard_nan=True)
         )
         
         # Flat-fielding
         if verbose:
             print('  - Flat-fielding...')
         if 'normalized_flat' not in locals():
-            normalized_flat = CCDData.read(os.path.join(cal_path, 'normalized_flat.fits'))
+            normalized_flat = CCDData.read(
+                os.path.join(cal_path, 'normalized_flat.fits'))
         targ_list_flat_fielded = (
             targ_list_bias_subtracted_with_deviation / normalized_flat
         )
@@ -429,9 +476,9 @@ def pipeline(save_dir, data_dir, hdu, keywords, steps, row_range, col_range,
         # Remove cosmic ray
         if verbose:
             print('  - Removing cosmic ray...')
-        targ_list_cosmicray_corrected = targ_list_flat_fielded.cosmicray(
-            method='Laplacian', use_mask=False, gain=gain, readnoise=rdnoise, sigclip=4.5, 
-            sigfrac=0.3, objlim=1, niter=5, verbose=True)
+        targ_list_cosmicray_corrected = targ_list_flat_fielded.cosmicray_lacosmic(
+            use_mask=False, gain=(1 * u.dimensionless_unscaled), readnoise=rdnoise, 
+            sigclip=4.5, sigfrac=0.3, objlim=1, niter=5, verbose=True)
 
         # Rectify curvature
         if verbose:
@@ -504,8 +551,8 @@ def main():
     keywords = ['imagetyp', 'object', 'exptime']
     steps = ['header', 'trim', 'bias', 'lamp', 'flat', 'targ']
     # steps = ['trim', 'flat', 'targ']
-    row_range = (329, 1830)
-    col_range = (0, 1900)
+    # fits_section = '[1:1900, 50:1950]'
+    fits_section = '[1:1900, 330:1830]'
     slit_along = 'col'
     index = 665
     n_piece = 23
@@ -531,7 +578,7 @@ def main():
     
     pipeline(
         save_dir=save_dir, data_dir=data_dir, hdu=hdu, keywords=keywords, steps=steps, 
-        row_range=row_range, col_range=col_range, slit_along=slit_along, 
+        fits_section=fits_section, slit_along=slit_along, 
         n_piece=n_piece, sigma=sigma, index=index, rdnoise=rdnoise, gain=gain, 
         custom_mask=custom_mask, reference=reference, mem_limit=500e6, show=False, 
         save=True, verbose=True, mode=mode)
