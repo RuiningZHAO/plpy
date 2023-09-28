@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "astro-plpy"
+description = "Data reduction pipelines developed based on astro-drpy."
+readme = {file = "README.md", content-type = "text/markdown"}
+authors = [
+  {name = "Ruining ZHAO", email = "ruiningzhao@mail.bnu.edu.cn"}, 
+]
+requires-python = ">=3.7.3"
+classifiers = [
+    "Programming Language :: Python :: 3", 
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)", 
+    "Operating System :: OS Independent", 
+]
+dynamic = ["version", "dependencies"]
+
+[project.scripts]
+plpy_bfosc_g4_old = "plpy.bfosc.g4_old:main"
+plpy_bfosc_phot_old = "plpy.bfosc.phot_old:main"
+plpy_bfosc_config = "plpy.bfosc.scripts:config"
+plpy_bfosc_spec = "plpy.bfosc.scripts:spec"
+plpy_bfosc_phot = "plpy.bfosc.scripts:phot"
+plpy_fire = "plpy.fire.core:main"
+
+[project.urls]
+"Homepage" = "https://github.com/RuiningZHAO/plpy"
+"Tracker" = "https://github.com/RuiningZHAO/plpy/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]  # list of folders that contain the packages (["."] by default)
+include = ["*"]  # package names should match these glob patterns (["*"] by default)
+
+[tool.setuptools.package-data]
+plpy = ["fire/lib/*", "bfosc/lib/**/*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "plpy.__version__"}
+dependencies = {file = "requirements.txt"}

@@ -1,0 +1,2 @@
+astro-drpy>=0.0.1.8
+pyregion>=2.2.0
