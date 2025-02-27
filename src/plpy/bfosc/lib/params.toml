@@ -1,0 +1,147 @@
+# Unix-style filename pattern to select filenames to include in the file
+# collection. Can be used in conjunction with `exclude` to easily select
+# subsets of files in the input directory.
+include = "*.fit"
+
+# Unix-style filename pattern to select filenames to exclude from the file
+# collection. Can be used in conjunction with `include` to easily select
+# subsets of files in the input directory.
+exclude = ""
+
+# HDU specification.
+hdu = 0
+
+# Shape of the data array.
+shape = [2048, 2048]
+
+# `col` or `row`.
+slit_along = "col"
+
+# Keywords to be printed out in verbose mode.
+keywords = ["date-obs", "obstype", "object", "ra", "dec", "filter", "exptime", "rdnoise", "gain", "airmass"]
+
+# Data reduction procedures.
+steps = ["trim", "bias", "flat", "lamp", "targ"]
+
+# Section to be cutout (fits-style).
+# g3: [1:1600, 330:1830]
+# g4: [1:1900, 330:1830]
+fits_section = "[1:1900, 330:1830]"
+
+# The location to concatenate two arc frames (along the dispertion axis). 
+# Somewhere between ArI 6871.2891 and ArI 6965.4307 is recommended.
+index = 665
+
+# Interval of the median spatial profile used for cross-correlation in
+# alignment.
+align_interval = "[:]"
+
+[flat]
+
+# Number of equally spaced pieces for spline3 fitting of response.
+# g3: 13 
+# g4: 23
+n_piece = 13 
+
+# 2-dimensional Gaussian sigma for illumination modeling.
+sigma = [10, 10]
+
+[trace]
+
+# Trace mode for target: `center` or `trace`.
+mode_target = "trace"
+
+# Number of spatial profiles to median. Large number for faint source.
+n_med = 10
+
+# Number of equally spaced pieces for spline3 fitting of trace.
+n_piece = 1
+
+[background]
+
+# Location of the sky background apertures. (standard)
+location_standard = [-400, 400]
+
+# Widths of the sky background apertures. (standard)
+width_standard = [100, 100]
+
+# Order of polynomial for sky background fitting. (standard)
+order_standard = 0
+
+# Location of the sky background apertures. (target)
+location_target = [-400, 400]
+
+# Widths of the sky background apertures. (target)
+width_target = [100, 100]
+
+# Order of polynomial for sky background fitting. (target)
+order_target = 0
+
+[extract]
+
+# Extraction method. `sum` or `optimal`. (standard)
+method_standard = "sum"
+
+# Aperture width for extraction. For optimal extraction, this is the profile
+# width, and a very wide aperture is preferred. Pixels outside the profile
+# will be set to `0`. (standard)
+width_standard = 100
+
+# Length of the Savgol filter window for profile smoothing along dispersion
+# axis. Only used in optimal extraction. (standard)
+pfl_window_standard = 150
+
+# The order of the polynomial used to fit profile along dispersion axis. Only
+# used in optimal extraction. (standard)
+pfl_order_standard = 3
+
+# Extraction method. `sum` or `optimal`. (target)
+method_target = "sum"
+
+# Aperture width for extraction. For optimal extraction, this is the profile
+# width, and a very wide aperture is preferred. Pixels outside the profile
+# will be set to `0`. (target)
+width_target = 80
+
+# Length of the Savgol filter window for profile smoothing along dispersion
+# axis. Only used in optimal extraction. (target)
+pfl_window_target = 150
+
+# The order of the polynomial used to fit profile along dispersion axis. Only
+# used in optimal extraction. (target)
+pfl_order_target = 3
+
+[calibrate]
+
+# Bandpass widths for the fitting of sensitivity function (in wavelength 
+# units).
+band_width = 10
+
+# Bandpass separations for the fitting of sensitivity function (in 
+# wavelength units).
+band_separation = 10
+
+# Number of equally spaced pieces for spline3 fitting of sensitivity function.
+n_piece = 19
+
+# Maximum number of sigma-clipping iterations to perform in the fitting. The 
+# clipping iterations will stop if convergence is achieved prior to ``maxiters`` 
+# iterations.
+maxiters = 5
+
+# Number of standard deviations to use as the lower bound for the clipping 
+# limit.
+sigma_lower = 3
+
+# Number of standard deviations to use as the upper bound for the clipping 
+# limit.
+sigma_upper = 3
+
+# Keyword for exposure time.
+exposure = "EXPTIME"
+
+# Keyword for airmass.
+airmass = "AIRMASS"
+
+# Name of the extinction file.
+extinct = "baoextinct.dat"

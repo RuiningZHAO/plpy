@@ -1,0 +1,76 @@
+# Unix-style filename pattern to select filenames to include in the file
+# collection. Can be used in conjunction with `exclude` to easily select
+# subsets of files in the input directory.
+include = "*.fits"
+
+# Unix-style filename pattern to select filenames to exclude from the file
+# collection. Can be used in conjunction with `include` to easily select
+# subsets of files in the input directory.
+exclude = ""
+
+# HDU specification.
+hdu = 0
+
+# Keywords to be printed out.
+keywords = ["date-sta", "obstype", "object", "ra", "dec", "exptime"]
+
+# Data reduction procedures.
+steps = ["trim", "bias", "flat", "lamp", "targ", "trace", "background", "extract"]
+
+# Section to be cutout (fits-style).
+fits_section = "[:4096, 80:4080]"
+
+# `col` or `row`.
+dispersion_axis = "row"
+
+# Keyword for exposure time.
+exposure = "exptime"
+
+# Gain
+gain = 1
+
+# Readout noise
+rdnoise = 9.5
+
+[trace]
+
+# Index of the combined flat-field where the orders are traced. When there
+# is only one combined flat-field, it should be `0`. When there are two, it
+# could be `0` or `1`, standing for red and blue, respectively. When there
+# are three, it could be `0`, `1` or `2`, standing for red, green and blue.
+flat_index = 0
+
+# Reference order number for tracing orders at red end. This order and the
+# redders are traced first. The trace of this order is then used to remove
+# the curvature of the redder traces. Finally, the decurvated redder orders
+# are fitted with low-order polynomials.
+order_ref_red = 59
+
+# Same as ``order_ref_red``, but for blue end.
+order_ref_blue = 135
+
+# Traces at the red end can be very weak as they approach the edges of the
+# frame. This argument specify a region that are bright enough to trace
+# accurately. Regions beyond these specified areas are ignored in trace
+# fitting to ensure that inaccurate centroiding in these weak regions does
+# not affect the resulting traces.
+range_red = "[:]"
+
+# Same as ``range_red``, but for blue end.
+range_blue = "[500:3750]"
+
+# Number of equally spaced pieces for spline3 fitting of the bright orders
+# in the middle.
+n_piece = 5
+
+# Degree of the low-order polynomial used to fit decurvated traces. Could
+# be 1 or 2.
+degree = 2
+
+[extract]
+
+# Orders to be extracted.
+orders = ''
+
+# Aperture width
+aper_width = 10

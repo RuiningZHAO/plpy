@@ -1,0 +1,35 @@
+# HDU specification.
+hdu = 0
+
+# Shape of the data array.
+shape = [1024, 2048]
+
+# Keywords to be printed out in verbose mode.
+keywords = ["utshut", "obstype", "object", "ra", "dec", "airmass", "exptime", "coadds", "fsample", "gain"]
+
+# Keyword for exposure time.
+exposure = "exptime"
+
+# Number of orders
+n_order = 5
+
+# Length of slit
+slit_length = 100
+
+[flat]
+
+# Unix-style filename pattern to select filenames to include in the file
+# collection. Can be used in conjunction with `exclude` to easily select
+# subsets of files in the input directory.
+include = "*.fits"
+
+# Unix-style filename pattern to select filenames to exclude from the file
+# collection. Can be used in conjunction with `include` to easily select
+# subsets of files in the input directory.
+exclude = ""
+
+# Threshold for binarization of flat-field. Value must be between 0 and 1
+# inclusive. Lower the value if the number of orders found is less than 
+# expected. No need to change if the instrument is stable. Default is 0.54,
+# which is a magic number.
+threshold = 0.54

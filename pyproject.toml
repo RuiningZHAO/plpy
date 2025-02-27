@@ -18,12 +18,23 @@ classifiers = [
 dynamic = ["version", "dependencies"]
 
 [project.scripts]
-plpy_bfosc_g4_old = "plpy.bfosc.g4_old:main"
-plpy_bfosc_phot_old = "plpy.bfosc.phot_old:main"
-plpy_bfosc_config = "plpy.bfosc.scripts:config"
+plpy_config = "plpy.scripts:config"
+plpy_setup = "plpy.scripts:setup"
+plpy_header = "plpy.scripts:header"
+plpy_mst = "plpy.mst.scripts:main"
+plpy_hrs = "plpy.hrs.scripts:main"
+plpy_fire_arc = "plpy.fire.scripts:arc"
+plpy_fire_flat = "plpy.fire.scripts:flat"
+plpy_fire_subtract = "plpy.fire.scripts:subtract"
+plpy_fire_trace = "plpy.fire.scripts:trace"
+plpy_fire_quick = "plpy.fire.scripts:quick"
+plpy_tspec_flat = "plpy.tspec.scripts:flat"
+plpy_tspec_prep = "plpy.tspec.scripts:preprocess"
 plpy_bfosc_spec = "plpy.bfosc.scripts:spec"
 plpy_bfosc_phot = "plpy.bfosc.scripts:phot"
-plpy_fire = "plpy.fire.core:main"
+plpy_bfosc_spec_old = "plpy.bfosc.longslit_old:main"
+plpy_bfosc_phot_old = "plpy.bfosc.imaging_old:main"
+plpy_yfosc_spec = "plpy.yfosc.scripts:spec"
 
 [project.urls]
 "Homepage" = "https://github.com/RuiningZHAO/plpy"
@@ -34,7 +45,7 @@ where = ["src"]  # list of folders that contain the packages (["."] by default)
 include = ["*"]  # package names should match these glob patterns (["*"] by default)
 
 [tool.setuptools.package-data]
-plpy = ["fire/lib/*", "bfosc/lib/**/*"]
+plpy = ["tspec/lib/*", "fire/lib/*", "bfosc/lib/**/*", "yfosc/lib/**/*", "hrs/lib/**/*", "mst/lib/**/*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "plpy.__version__"}

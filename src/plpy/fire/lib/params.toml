@@ -1,0 +1,44 @@
+# Unix-style filename pattern to select filenames to include in the file
+# collection. Can be used in conjunction with `exclude` to easily select
+# subsets of files in the input directory.
+include = "*.fits"
+
+# Unix-style filename pattern to select filenames to exclude from the file
+# collection. Can be used in conjunction with `include` to easily select
+# subsets of files in the input directory.
+exclude = ""
+
+# HDU specification.
+hdu = 0
+
+# Keywords to be printed out.
+keywords = ["date-obs", "obstype", "object", "ra", "dec", "exptime", "airmass", "enoise", "egain", "readmode"]
+
+# Shape of the data array.
+shape = [2048, 2048]
+
+# `col` or `row`.
+slit_along = "row"
+
+# Section to be cutout (fits-style).
+fits_section = "[955:1186, 7:1990]"
+
+[flat]
+
+# 2-dimensional Gaussian sigma for illumination modeling.
+sigma = [10, 1]
+
+[background]
+
+# Distance of the left and right sky background apertures from the two traces.
+distance = 75
+
+# Offset of the middle sky background aperture. Default is `0`, i.e., the 
+# aperture is exactly in the middle of the two traces.
+offset = 0
+
+# Widths of the three sky background apertures.
+width = [50, 10, 50]
+
+# Order of polynomial for sky background fitting.
+order = 1

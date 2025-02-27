@@ -1,2 +1,3 @@
-astro-drpy>=0.0.1.8
+astro-drpy>=0.1.9
+toml>=0.10.2
 pyregion>=2.2.0

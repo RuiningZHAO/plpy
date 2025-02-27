@@ -1,0 +1,121 @@
+# Unix-style filename pattern to select filenames to include in the file
+# collection. Can be used in conjunction with `exclude` to easily select
+# subsets of files in the input directory.
+include = "*.fit"
+
+# Unix-style filename pattern to select filenames to exclude from the file
+# collection. Can be used in conjunction with `include` to easily select
+# subsets of files in the input directory.
+exclude = ""
+
+# HDU specification.
+hdu = 0
+
+# Shape of the data array.
+shape = [2048, 2048]
+
+# `col` or `row`.
+slit_along = "col"
+
+# Keywords to be printed out in verbose mode.
+keywords = ["date-obs", "obstype", "object", "ra", "dec", "filter", "exptime", "rdnoise", "gain", "airmass"]
+
+# Data reduction procedures.
+steps = ["trim", "bias", "flat", "lamp", "targ"]
+
+# Section to be cutout (fits-style).
+# g3: [1:1600, 330:1830]
+# g4: [1:1900, 330:1830]
+fits_section = "[1:1600, 330:1830]"
+
+# The location to concatenate two arc frames (along the dispertion axis). An
+# index between ArI 6871.2891 and ArI 6965.4307 is recommended.
+index = 665
+
+# Interval of the median spatial profile used for cross-correlation in
+# alignment.
+align_interval = [:]
+
+# Keyword for exposure time.
+exposure = "EXPTIME"
+
+# Keyword for airmass.
+airmass = "AIRMASS"
+
+# Name of the extinction file.
+extinct = "baoextinct.dat"
+
+[flat]
+
+# Number of equally spaced pieces for spline3 fitting of response.
+# g3: 13 
+# g4: 23
+n_piece = 13
+
+# 2-dimensional Gaussian sigma for illumination modeling.
+sigma = [10, 10]
+
+[trace]
+
+# Trace method. `center` or `trace`. (target)
+method_target = "trace"
+
+# Number of spatial profiles to median. Large number for faint source.
+n_med = 10
+
+# Number of equally spaced pieces for spline3 fitting of trace.
+n_piece = 1
+
+[background]
+
+# Location of the sky background apertures. (standard)
+bkg_location_stan = -400,400
+
+# Widths of the sky background apertures. (standard)
+bkg_width_stan = 100,100
+
+# Order of polynomial for sky background fitting. (standard)
+bkg_order_stan = 1
+
+# Location of the sky background apertures. (target)
+bkg_location_targ = -400,400
+
+# Widths of the sky background apertures. (target)
+bkg_width_targ = 100,100
+
+# Order of polynomial for sky background fitting. (target)
+bkg_order_targ = 1
+
+[extract]
+
+# Extraction method. `sum` or `optimal`. (standard)
+method_stan = "sum"
+
+# Aperture width for extraction. For optimal extraction, this is the profile
+# width, and a very wide aperture is preferred. Pixels outside the profile
+# will be set to `0`. (standard)
+aper_width_stan = 100
+
+# Length of the Savgol filter window for profile smoothing along dispersion
+# axis. Only used in optimal extraction. (standard)
+pfl_window_stan = 150
+
+# The order of the polynomial used to fit profile along dispersion axis. Only
+# used in optimal extraction. (standard)
+pfl_order_stan = 3
+
+# Extraction method. `sum` or `optimal`. (target)
+method_targ = "sum"
+
+# Aperture width for extraction. For optimal extraction, this is the profile
+# width, and a very wide aperture is preferred. Pixels outside the profile
+# will be set to `0`. (target)
+aper_width_targ = 80
+
+# Length of the Savgol filter window for profile smoothing along dispersion
+# axis. Only used in optimal extraction. (target)
+pfl_window_targ = 150
+
+# The order of the polynomial used to fit profile along dispersion axis. Only
+# used in optimal extraction. (target)
+pfl_order_targ = 3

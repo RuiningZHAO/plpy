@@ -8,4 +8,4 @@ pip install astro-plpy
 
 ## Supported instruments (09/28/2023)
 - 2.16-Meter/BFOSC
-- Clay/FIRE
+- Baade/FIRE

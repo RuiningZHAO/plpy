@@ -1,7 +1,18 @@
 [console_scripts]
-plpy_bfosc_config = plpy.bfosc.scripts:config
-plpy_bfosc_g4_old = plpy.bfosc.g4_old:main
 plpy_bfosc_phot = plpy.bfosc.scripts:phot
-plpy_bfosc_phot_old = plpy.bfosc.phot_old:main
+plpy_bfosc_phot_old = plpy.bfosc.imaging_old:main
 plpy_bfosc_spec = plpy.bfosc.scripts:spec
-plpy_fire = plpy.fire.core:main
+plpy_bfosc_spec_old = plpy.bfosc.longslit_old:main
+plpy_config = plpy.scripts:config
+plpy_fire_arc = plpy.fire.scripts:arc
+plpy_fire_flat = plpy.fire.scripts:flat
+plpy_fire_quick = plpy.fire.scripts:quick
+plpy_fire_subtract = plpy.fire.scripts:subtract
+plpy_fire_trace = plpy.fire.scripts:trace
+plpy_header = plpy.scripts:header
+plpy_hrs = plpy.hrs.scripts:main
+plpy_mst = plpy.mst.scripts:main
+plpy_setup = plpy.scripts:setup
+plpy_tspec_flat = plpy.tspec.scripts:flat
+plpy_tspec_prep = plpy.tspec.scripts:preprocess
+plpy_yfosc_spec = plpy.yfosc.scripts:spec

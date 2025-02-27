@@ -1,0 +1,24 @@
+# Unix-style filename pattern to select filenames to include in the file
+# collection. Can be used in conjunction with `exclude` to easily select
+# subsets of files in the input directory.
+include = "*.fits"
+
+# Unix-style filename pattern to select filenames to exclude from the file
+# collection. Can be used in conjunction with `include` to easily select
+# subsets of files in the input directory.
+exclude = ""
+
+# HDU specification.
+hdu = 0
+
+# Keywords to be printed out in verbose mode.
+keywords = ["date-obs", "imagetyp", "object", "ra", "dec", "airmass", "exptime", "gain"]
+
+# Keyword for exposure time.
+exposure = "exptime"
+
+# Data reduction procedures.
+steps = ["bias", "flat", "target"]
+
+# Readout noise
+rdnoise = 6.4

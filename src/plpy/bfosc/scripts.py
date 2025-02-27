@@ -8,13 +8,15 @@ import os, argparse
 def spec():
     """Command line tool."""
     
-    grism = 'g4'
-    
     # External parameters
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-i', '--input_dir', required=True, type=str, 
         help='Input (data) directory.'
+    )
+    parser.add_argument(
+        '-o', '--output_dir', default='', type=str, 
+        help='Output (saving) directory.'
     )
     parser.add_argument(
         '-m', '--semester', required=True, type=str, 
@@ -25,8 +27,8 @@ def spec():
         help='Slit width.'
     )
     parser.add_argument(
-        '-o', '--output_dir', default='', type=str, 
-        help='Output (saving) directory.'
+        '-g', '--grism', required=True, type=int, choices=[3, 4], 
+        help='Grism.'
     )
     parser.add_argument(
         '-r', '--reference', default=None, type=str, 
@@ -37,20 +39,16 @@ def spec():
         help='Path to the standard spectrum in the library.'
     )
     parser.add_argument(
-        '-c', '--combine', action='store_true', 
-        help='Combine or not.'
-    )
-    parser.add_argument(
         '-k', '--keyword', default='object', type=str, 
         help='Keyword for grouping.'
     )
     parser.add_argument(
-        '-x', '--extract', action='store_true', 
-        help='Extract 1-dimensional spectra or not.'
+        '-c', '--combine', action='store_true', 
+        help='Combine or not.'
     )
     parser.add_argument(
-        '-p', '--point', action='store_true', 
-        help='Point source or not.'
+        '-x', '--extract', action='store_true', 
+        help='Extract 1-dimensional spectra or not.'
     )
     parser.add_argument(
         '-v', '--verbose', action='store_true', 
@@ -60,15 +58,15 @@ def spec():
     # Parse
     args = parser.parse_args()
     data_dir = os.path.abspath(args.input_dir)
+    save_dir = os.path.abspath(args.output_dir)
     semester = args.semester
     slit_width = str(args.slit_width).replace('.', '')
-    save_dir = os.path.abspath(args.output_dir)
+    grism = 'g' + str(args.grism)
     reference = args.reference
     standard = args.standard
     combine = args.combine
     keyword = args.keyword
     extract = args.extract
-    isPoint = args.point
     verbose = args.verbose
 
     from .longslit import pipeline
@@ -76,11 +74,10 @@ def spec():
     pipeline(
         save_dir=save_dir, data_dir=data_dir, semester=semester, grism=grism, 
         slit_width=slit_width, standard=standard, reference=reference, 
-        shouldCombine=combine, keyword=keyword, isPoint=isPoint, 
-        shouldExtract=extract, verbose=verbose)
+        shouldCombine=combine, keyword=keyword, shouldExtract=extract, 
+        verbose=verbose)
 
 
-# To be modified to compatible with configuration
 def phot():
     """Command line tool."""
     
@@ -139,14 +136,3 @@ def phot():
         filters=filters, steps=steps, row_range=row_range, col_range=col_range, 
         custom_mask=custom_mask, mem_limit=500e6, show=False, save=True, 
         verbose=verbose, mode=mode)
-
-
-def config():
-    
-    from astropy.config import create_config_file
-
-    create_config_file('plpy', rootname='plpy', overwrite=True)
-
-
-if __name__ == '__main__':
-    config()
